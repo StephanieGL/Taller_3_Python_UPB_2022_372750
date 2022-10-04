@@ -9,11 +9,12 @@
 # In[2]:
 
 
+from turtle import circle
 import cv2 as cv
 import numpy as np
 import matplotlib.pyplot as plt
 from PIL import Image
-get_ipython().run_line_magic('matplotlib', 'inline')
+#get_ipython().run_line_magic('matplotlib', 'inline')
 from IPython.display import Image
 
 
@@ -64,9 +65,7 @@ def Mask (img_1_rgb):
     revtal, img_1_mask=cv.threshold(img_gray, 230, 255, cv.THRESH_BINARY)
     plt.imshow(img_1_mask, cmap="gray")
     print(img_1_mask.shape)
-    return
-
-
+    return(img_1_rgb)
 # Invertimos Mask
 
 # In[47]:
@@ -75,7 +74,7 @@ def Mask (img_1_rgb):
 def InvMask (img_1_mask):
     mask_inv=cv.bitwise_not(img_1_mask)
     plt.imshow(mask_inv, cmap="gray")
-    return
+    return(img_1_mask)
 
 
 # ## Fondo de la imagen (imagen 2)
@@ -101,7 +100,7 @@ def Dim (img_2_rgb):
     img_2_rgb=cv.resize(img_2_rgb, dim, interpolation=cv.INTER_AREA)
     plt.imshow(img_2_rgb)
     print(img_2_rgb.shape)
-    return
+    return(img_2_rgb)
 
 
 # Aplicamos el fondo de la imagen con Mask
@@ -115,16 +114,18 @@ def bg_mask (img_bg):
     mask_inv=cv.bitwise_not(img_1_mask)
     img_bg=cv.bitwise_and(img_2_rgb, img_2_rgb, mask=mask_inv)
     plt.imshow(img_bg)
-    return
+    return(img_bg)
 
 
 # In[88]:
 
 
 def fg_mask (img_fg):
+    img_gray=cv.cvtColor(img_1_rgb, cv.COLOR_RGB2GRAY)
+    img_1_mask=cv.threshold(img_gray, 230, 255, cv.THRESH_BINARY)
     img_fg=cv.bitwise_and(img_1_rgb, img_1_rgb, mask=img_1_mask)
     plt.imshow(img_fg)
-    return
+    return(img_fg)
 
 
 # Logo y fondo de la imagen unidas
@@ -133,10 +134,15 @@ def fg_mask (img_fg):
 
 
 def New_Image (img1_final):
+    img_gray=cv.cvtColor(img_1_rgb, cv.COLOR_RGB2GRAY)
+    revtal, img_1_mask=cv.threshold(img_gray, 230, 255, cv.THRESH_BINARY)
+    mask_inv=cv.bitwise_not(img_1_mask)
+    img_fg=cv.bitwise_and(img_1_rgb, img_1_rgb, mask=img_1_mask)
+    img_bg=cv.bitwise_and(img_2_rgb, img_2_rgb, mask=mask_inv)
     img1_final= cv.add(img_bg, img_fg)
     plt.imshow(img1_final)
     cv.imwrite("logo_fondo.png", img1_final[:,:,::-1])
-    return
+    return(img1_final)
 
 
 # In[96]:
@@ -161,7 +167,7 @@ def Change_Color (img_f):
     plt.subplot(154);plt.imshow(b,cmap='gray');plt.title("Blue Channel");
     img_merged = cv.merge((b,g,r))
     plt.subplot(155);plt.imshow(img_merged[:,:,::-1]);plt.title("Merged Output");
-    return
+    return(img_f)
 
 
 # Cambiando a HSV color space
@@ -177,7 +183,7 @@ def HSV (img_f_hsv):
     plt.subplot(142);plt.imshow(s,cmap='gray');plt.title("S Channel");
     plt.subplot(143);plt.imshow(v,cmap='gray');plt.title("V Channel");
     plt.subplot(144);plt.imshow(img_f_rgb);plt.title("Original");
-    return
+    return (img_f_hsv)
 
 
 # Modificamos cada canal
@@ -197,7 +203,7 @@ def hsv_new (img_f_hsv):
     plt.subplot(143);plt.imshow(v,cmap='gray');plt.title("V Channel");
     plt.subplot(144);plt.imshow(img_f);plt.title("Modified");
     cv.imwrite("HSV.png", img_f_hsv[:,:,::-1])
-    return
+    return(img_f_hsv)
 
 
 # Ahora haremos lo siguiente con la imagen logo_fondo.png: 
@@ -219,7 +225,7 @@ def Crop (img_f_crop):
     plt.subplot(1,2,2)
     plt.imshow(img_f_crop)
     cv.imwrite("recorte.png", img_f_crop[:,:,::-1])
-    return
+    return(img_f_crop)
 
 
 # Volteamos la imagen horizontalmente
@@ -233,7 +239,7 @@ def Flip_h (img_f_rgb_flipped_horz):
     plt.subplot(141);plt.imshow(img_f_rgb);plt.title("Original");
     plt.subplot(142);plt.imshow(img_f_rgb_flipped_horz);plt.title("Horizontal Flip");
     cv.imwrite("flip_h.png", img_f_rgb_flipped_horz[:,:,::-1])
-    return
+    return(img_f_rgb_flipped_horz)
 
 
 # Volteamos la imagen verticalmente
@@ -247,7 +253,7 @@ def Flip_v (img_f_rgb_flipped_vert):
     plt.subplot(141);plt.imshow(img_f_rgb);plt.title("Original");
     plt.subplot(142);plt.imshow(img_f_rgb_flipped_vert);plt.title("Vertical Flip");
     cv.imwrite("flip_v.png", img_f_rgb_flipped_vert[:,:,::-1])
-    return
+    return(img_f_rgb_flipped_vert)
 
 
 # Volteamos la imagen de ambos lados
@@ -261,7 +267,7 @@ def Flip_b (img_f_rgb_flipped_both):
     plt.subplot(141);plt.imshow(img_f_rgb);plt.title("Original");
     plt.subplot(142);plt.imshow(img_f_rgb_flipped_both);plt.title("Both Flipped");
     cv.imwrite("flip_b.png", img_f_rgb_flipped_both[:,:,::-1])
-    return
+    return(img_f_rgb_flipped_both)
 
 
 # Rotamos la imagen 
@@ -275,7 +281,7 @@ def Rotate1 (img_f_rot1):
     plt.subplot(141);plt.imshow(img_f_rgb);plt.title("Original");
     plt.subplot(142);plt.imshow(img_f_rot1);plt.title("Rotated Image");
     cv.imwrite("rotate1.png", img_f_rot1[:,:,::-1])
-    return
+    return(img_f_rot1)
 
 
 # In[157]:
@@ -292,7 +298,7 @@ def Rotate2 (img_f_rot2):
     plt.subplot(141);plt.imshow(img_f_rgb);plt.title("Original");
     plt.subplot(142);plt.imshow(img_f_rot2);plt.title("Rotated Image");
     cv.imwrite("rotate2.png", img_f_rot2[:,:,::-1])
-    return
+    return(img_f_rot2)
 
 
 # Desplazamiento de la imagen
@@ -309,7 +315,7 @@ def Des (img_f_des):
     plt.subplot(141);plt.imshow(img_f_rgb);plt.title("Original");
     plt.subplot(142);plt.imshow(img_f_des);plt.title("Shifted Image");
     cv.imwrite("Desplazamiento.png", img_f_des[:,:,::-1])
-    return
+    return(img_f_des)
 
 
 # Dibujamos en la imagen logo_fondo.png (círculos, rectángulos, líneas, texto).
@@ -323,7 +329,7 @@ def Line (img_f_line):
     cv.line(img_f_line, (150, 100), (300, 200),(0, 0, 255), thickness=5, lineType=cv.LINE_AA);
     plt.imshow(img_f_line[:,:,::-1])
     cv.imwrite("Line.png", img_f_line[:,:,::-1])
-    return
+    return(img_f_line)
 
 
 # In[170]:
@@ -335,7 +341,8 @@ def Circle (img_f_circle):
     cv.circle(img_f_circle, (500,350), 100, (0, 0, 255), thickness=5, lineType=cv.LINE_AA);
     plt.imshow(img_f_circle[:,:,::-1])
     cv.imwrite("circle.png", img_f_circle[:,:,::-1])
-    return
+    return (img_f_circle)
+
 
 
 # In[173]:
@@ -347,7 +354,7 @@ def Rect (img_f_rect):
     cv.rectangle(img_f_rect, (660, 350), (100,200), (0, 0, 255), thickness=5, lineType=cv.LINE_8);
     plt.imshow(img_f_rect[:,:,::-1])
     cv.imwrite("rectangle.png", img_f_rect[:,:,::-1])
-    return
+    return (img_f_rect)
 
 
 # In[177]:
@@ -364,7 +371,7 @@ def Text (img_f_text):
     cv.putText(img_f_text, text, (50, 500), fontFace, fontScale, fontColor, fontThickness, cv.LINE_AA);
     plt.imshow(img_f_text[:,:,::-1])
     cv.imwrite("text.png", img_f_text[:,:,::-1])
-    return
+    return(img_f_text)
 
 
 # Brillo de la imagen
@@ -384,5 +391,6 @@ def Bright(img_f_b):
     plt.subplot(121); plt.imshow(img_f_rgb); plt.title('Original')
     plt.subplot(122); plt.imshow(img_f_b); plt.title('Bright change')
     cv.imwrite("Brillo.png", img_f_b[:,:,::-1])
-    return
+    return(img_f_b)
+    
 
